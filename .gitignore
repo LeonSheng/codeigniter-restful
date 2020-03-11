@@ -2,18 +2,21 @@
 
 application/cache/*
 !application/cache/index.html
-
 application/logs/*
 !application/logs/index.html
-
+!application/.htaccess
 !application/*/.htaccess
+application/vendor/
+
+!system/.htaccess
 
 user_guide_src/build/*
 user_guide_src/cilexer/build/*
 user_guide_src/cilexer/dist/*
 user_guide_src/cilexer/pycilexer.egg-info/*
-application/vendor/
+
 /dist/
+.htaccess
 
 # IDE Files
 #-------------------------
