@@ -1,0 +1,33 @@
+{
+	"description": "The CodeIgniter framework",
+	"name": "codeigniter/framework",
+	"type": "project",
+	"homepage": "https://codeigniter.com",
+	"license": "MIT",
+	"support": {
+		"forum": "http://forum.codeigniter.com/",
+		"wiki": "https://github.com/bcit-ci/CodeIgniter/wiki",
+		"slack": "https://codeigniterchat.slack.com",
+		"source": "https://github.com/bcit-ci/CodeIgniter"
+	},
+	"require": {
+		"php": ">=7.2",
+        "ext-json": "*",
+        "ext-gd": "*",
+        "doctrine/orm": "^2.7",
+		"firebase/php-jwt": "^5.1"
+	},
+    "config": {
+        "vendor-dir": "application/vendor"
+    },
+    "autoload": {
+        "psr-0": {"": [
+            "application/common",
+            "application/controllers/base",
+            "application/models",
+            "application/models/base",
+            "application/repositories",
+            "application/repositories/base"
+        ]}
+    }
+}

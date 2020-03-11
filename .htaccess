@@ -1,0 +1,10 @@
+<IfModule mod_rewrite.c>
+  Options +FollowSymlinks -Multiviews
+  #SetEnv CI_ENV production
+  SetEnvIf Authorization "(.*)" HTTP_AUTHORIZATION=$1
+  RewriteEngine On
+
+  RewriteCond %{REQUEST_FILENAME} !-d
+  RewriteCond %{REQUEST_FILENAME} !-f
+  RewriteRule ^(.*)$ index.php/$1 [QSA,PT,L]
+</IfModule>
