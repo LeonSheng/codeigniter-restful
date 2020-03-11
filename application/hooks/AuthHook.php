@@ -30,7 +30,7 @@ class AuthHook
         $headers = $this->ci->input->request_headers();
         $result = $this->verifyAccessToken($headers);
         if ($result['errcode'] !== 0)
-            show_json_error($result['errmsg'], HTTP_UNAUTHORIZED, false);
+            show_json_error($result['error'], HTTP_UNAUTHORIZED, false);
     }
 
     private function skip(string $requestUri): bool
