@@ -16,7 +16,7 @@ class AuthHook
     }
 
     /**
-     * Token认证
+     * Token Authentication
      */
     public function index()
     {
@@ -30,7 +30,7 @@ class AuthHook
         $headers = $this->ci->input->request_headers();
         $result = $this->verifyAccessToken($headers);
         if ($result['errcode'] !== 0)
-            show_json_error($result['error'], HTTP_UNAUTHORIZED, false);
+            show_json_error($result, HTTP_UNAUTHORIZED, false);
     }
 
     private function skip(string $requestUri): bool
@@ -59,13 +59,6 @@ class AuthHook
             if (!array_key_exists('user_id', $decoded_array)) {
                 return ERROR_TOKEN_INVALID;
             }
-            //从缓存中获取该令牌对应的登录用户，验证id
-            /*$userId = $decoded_array['user_id'];
-            $admin = $this->getAdminFromCache($accessToken);
-            if ($admin === null)
-                return self::TOKEN_NOT_LOGIN;
-            if ($admin->getId() !== $userId)
-                return self::TOKEN_INVALID;*/
         } catch (ExpiredException $e) {
             return ERROR_TOKEN_EXPIRED;
         } catch (Exception $e) {

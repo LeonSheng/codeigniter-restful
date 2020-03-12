@@ -12,7 +12,7 @@ class RepositoryUtils
      *
      * @param object $source
      * @param object $target
-     * @throws ReflectionException
+     * @throws
      */
     public static function setUpdate(object &$source, object &$target): void
     {
@@ -56,7 +56,7 @@ class RepositoryUtils
 
     /**
      * @param object $modelObject
-     * @throws ReflectionException
+     * @throws
      */
     public static function initializeForCreate(object &$modelObject)
     {
@@ -72,7 +72,7 @@ class RepositoryUtils
     /**
      * @param object $modelObject
      * @param ReflectionClass $class
-     * @throws ReflectionException
+     * @throws
      */
     private static function putCreateValue(object &$modelObject, ReflectionClass &$class)
     {

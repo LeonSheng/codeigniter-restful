@@ -1,12 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-use Doctrine\ORM\Mapping\MappingException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
-use Doctrine\ORM\OptimisticLockException;
-use Doctrine\ORM\ORMException;
-
 /**
  * Provide useful RESTful CRUD request for each entity
  */
@@ -27,17 +21,10 @@ class BaseController extends RestController
     /**
      * Create one
      *
-     * @param string $id required
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws ReflectionException
+     * @throws
      */
-    public function index_post(string $id)
+    public function index_post()
     {
-        if ($id != null) {
-            show_json_error("${id} is forbidden in url", HTTP_BAD_REQUEST);
-        }
-
         $entity = ObjectUtils::fromArray($this->requestBody, $this->className);
         RepositoryUtils::initializeForCreate($entity);
         $this->beforeCreate($entity);
@@ -51,14 +38,21 @@ class BaseController extends RestController
      * Delete one by id
      *
      * @param string $id required
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @param bool $physical Whether to delete it physically
+     * @throws
      */
-    public function one_delete(string $id)
+    public function one_delete(string $id, bool $physical)
     {
+        /** @var BaseEntity $entity */
         $entity = $this->repository->find($id);
+        if ($entity === null)
+            show_404();
         $this->beforeDelete($entity);
-        $this->doctrine->em->remove($entity);
+        if ($physical) {
+            $this->doctrine->em->remove($entity);
+        } else {
+            $entity->setIsDeleted(true);
+        }
         $this->doctrine->em->flush();
         $this->afterDelete($entity);
         $this->response(null, HTTP_NO_CONTENT);
@@ -67,22 +61,31 @@ class BaseController extends RestController
     /**
      * Delete multiple by ids
      *
-     * @param string $ids required
-     * @throws ORMException
-     * @throws OptimisticLockException
+     * @param bool $physical Whether to delete them physically
+     * @throws
      */
-    public function index_delete(string $ids)
+    public function index_delete(bool $physical)
     {
-        $ids = explode(',', $ids);
-        $this->doctrine->em->beginTransaction();
-        foreach ($ids as $id) {
-            $entity = $this->repository->find($id);
-            $this->beforeDelete($entity);
-            $this->doctrine->em->remove($entity);
-            $this->afterDelete($entity);
+        $ids = $this->requestBody;
+        if (is_array($ids) && count($ids) > 0) {
+            $this->doctrine->em->beginTransaction();
+            foreach ($ids as $id) {
+                $entity = $this->repository->find($id);
+                if ($entity === null)
+                    show_404();
+                $this->beforeDelete($entity);
+                if ($physical) {
+                    $this->doctrine->em->remove($entity);
+                } else {
+                    $entity->setIsDeleted(true);
+                }
+                $this->afterDelete($entity);
+            }
+            $this->doctrine->em->flush();
+            $this->doctrine->em->commit();
+        } else {
+            show_json_error(STATUS_TEXT[HTTP_BAD_REQUEST], HTTP_BAD_REQUEST);
         }
-        $this->doctrine->em->flush();
-        $this->doctrine->em->commit();
         $this->response(null, HTTP_NO_CONTENT);
     }
 
@@ -90,17 +93,16 @@ class BaseController extends RestController
      * Update one by id
      *
      * @param string $id required
-     * @throws ORMException
-     * @throws OptimisticLockException
-     * @throws ReflectionException
+     * @throws
      */
     public function one_patch(string $id)
     {
         /** @var BaseEntity $entity */
         $entity = ObjectUtils::fromArray($this->requestBody, $this->className);
         $entity->setIdNull();
-        /** @var BaseEntity $loadedEntity */
         $loadedEntity = $this->repository->find($id);
+        if ($loadedEntity === null)
+            show_404();
         $this->beforeUpdate($loadedEntity, $entity);
         RepositoryUtils::setUpdate($entity, $loadedEntity);
         $this->doctrine->em->persist($loadedEntity);
@@ -115,12 +117,9 @@ class BaseController extends RestController
      * @param int|null $pageSize Page size
      * @param int|null $pageIndex Page index
      * @param string|null $sort Used to query database with orderBy field. For example, $sort = 'id,desc'
-     * @throws MappingException
-     * @throws NoResultException
-     * @throws NonUniqueResultException
-     * @throws ReflectionException
+     * @param bool $isExact eq or like criteria search
      */
-    public function index_get($pageSize, $pageIndex, $sort)
+    public function index_get($pageSize, $pageIndex, $sort, bool $isExact)
     {
         $args = $this->requestParams;
         $exampleEntity = ObjectUtils::fromArray($args, $this->className);
@@ -141,7 +140,7 @@ class BaseController extends RestController
         $exampleArray = array_filter($exampleArray, function ($value) {
             return $value !== null;
         });
-        $data = $this->repository->findPagedAll($exampleArray, $pageSize, $pageIndex, $orderBy);
+        $data = $this->repository->findPagedAllBy($exampleArray, $pageSize, $pageIndex, $orderBy, $isExact);
         $this->response($data, HTTP_OK);
     }
 
@@ -149,7 +148,6 @@ class BaseController extends RestController
      * Find one by id
      *
      * @param string $id required
-     * @throws ReflectionException
      */
     public function one_get(string $id)
     {

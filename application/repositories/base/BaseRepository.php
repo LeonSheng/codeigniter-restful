@@ -2,17 +2,37 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 use Doctrine\ORM\EntityRepository;
-use Doctrine\ORM\Mapping\MappingException;
-use Doctrine\ORM\NonUniqueResultException;
-use Doctrine\ORM\NoResultException;
 use Doctrine\ORM\QueryBuilder;
 
 class BaseRepository extends EntityRepository
 {
     protected $_alias = 'o';
 
+
     /**
-     * Finds paged entities by a set of criteria.
+     * Find all entities by a set of criteria.
+     *
+     * @param array $criteria
+     * @param array|null $orderBy
+     * @param bool $isExact
+     * @return array
+     */
+    public function findAllBy($criteria, $orderBy, bool $isExact = false): array
+    {
+        $builder = $this->_em->createQueryBuilder();
+        $listBuilder = $builder
+            ->select($this->_alias)
+            ->from($this->_entityName, $this->_alias)
+            ->where('1 = 1');
+        $this->appendCriteria($listBuilder, $criteria, $isExact, $orderBy);
+        $list = $listBuilder->getQuery()->getResult();
+        return [
+            'list' => ObjectUtils::toArray($list),
+        ];
+    }
+
+    /**
+     * Find paged entities by a set of criteria.
      *
      * @param array $criteria
      * @param array|null $orderBy
@@ -20,12 +40,9 @@ class BaseRepository extends EntityRepository
      * @param int|null $pageIndex
      * @param bool $isExact
      * @return array The serialized data {list: [...], page: {totalElements: x, $pageSize: x, $pageIndex: x}}
-     * @throws ReflectionException
-     * @throws NoResultException
-     * @throws NonUniqueResultException
-     * @throws MappingException
+     * @throws
      */
-    public function findPagedAll($criteria, $pageSize, $pageIndex, $orderBy, $isExact = false): array
+    public function findPagedAllBy($criteria, $pageSize, $pageIndex, $orderBy, bool $isExact = false): array
     {
         $limit = $pageSize !== null && $pageSize > 0 ? (int)$pageSize : 20;
         $pageIndex = $pageIndex !== null && $pageIndex >= 0 ? (int)$pageIndex : 0;
@@ -66,7 +83,7 @@ class BaseRepository extends EntityRepository
      * @param null $orderBy
      * @param null $limit
      * @param null $offset
-     * @throws MappingException
+     * @throws
      */
     private function appendCriteria(QueryBuilder &$qb,
                                     array $criteria,
@@ -76,12 +93,22 @@ class BaseRepository extends EntityRepository
                                     $offset = null)
     {
         $expr = $this->_em->getExpressionBuilder();
+        if (!key_exists('isDeleted', $criteria)) {
+            $qb = $qb->andWhere($expr->eq("{$this->_alias}.isDeleted", 'false'));
+        }
         foreach ($criteria as $key => $value) {
             $fieldType = $this->_em->getClassMetadata($this->_entityName)->getFieldMapping($key)['type'];
-            if (!$isExact && $fieldType === 'string')
-                $qb = $qb->andWhere($expr->like("{$this->_alias}.${key}", $qb->expr()->literal("%$value%")));
-            else {
-                $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $value));
+            switch ($fieldType) {
+                case 'string':
+                    if ($isExact) {
+                        $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $qb->expr()->literal("$value")));
+                    } else {
+                        $qb = $qb->andWhere($expr->like("{$this->_alias}.${key}", $qb->expr()->literal("%$value%")));
+                    }
+                    break;
+                default:
+                    $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $value));
+                    break;
             }
         }
         if ($orderBy !== null) {

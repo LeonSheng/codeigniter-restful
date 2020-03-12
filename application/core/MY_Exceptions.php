@@ -14,7 +14,7 @@ class MY_Exceptions extends CI_Exceptions
         header('Content-type: application/json');
         set_status_header($status_code);
         return json_encode([
-            'status' => $status_code,
+            'errcode' => $status_code,
             'error' => $message,
         ]);
     }

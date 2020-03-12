@@ -11,7 +11,7 @@ class ObjectUtils
      *
      * @param object | array $object
      * @return array
-     * @throws ReflectionException
+     * @throws
      */
     public static function toArray($object): array
     {
@@ -35,7 +35,7 @@ class ObjectUtils
      * @param object $object
      * @param ReflectionClass $class
      * @return array
-     * @throws ReflectionException
+     * @throws
      */
     private static function toAssociateArray(object $object, ReflectionClass& $class): array
     {
@@ -57,7 +57,6 @@ class ObjectUtils
      * @param array $array
      * @param object $object
      * @param ReflectionClass $class
-     * @throws ReflectionException
      */
     private static function assignValueToArray(array &$array, object &$object, ReflectionClass &$class)
     {
@@ -87,7 +86,7 @@ class ObjectUtils
      * @param array $array
      * @param string $className
      * @return object
-     * @throws ReflectionException
+     * @throws
      */
     public static function fromArray(array $array, string $className): object
     {

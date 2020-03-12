@@ -34,8 +34,7 @@ class RestController extends CI_Controller
      * remap to call real controller method
      *
      * @param string $method
-     * @throws ReflectionException
-     * @throws Exception
+     * @throws
      */
     public function _remap($method)
     {

@@ -75,11 +75,15 @@ change the username from 'admin' to 'admin2' with given user id
 curl http://localhost/users/5e6916390b500a2ecde6aa40 -X PATCH -v -d "{\"username\":\"admin2\"}" -H "content-type: application/json"
 ```
 
-* **DELETE:** Delete a user by id
+* **DELETE:** Delete a user by id (logic delete)
 ```
 curl http://localhost/users/5e6916390b500a2ecde6aa40 -X DELETE -v -H "content-type: application/json"
 ```
 
+* **DELETE:** Delete a user by id (physical delete)
+```
+curl http://localhost/users/5e6916390b500a2ecde6aa40?physical=1 -X DELETE -v -H "content-type: application/json"
+```
 
 **Create Your Entity**
 

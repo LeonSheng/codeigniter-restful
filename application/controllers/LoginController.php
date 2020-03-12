@@ -1,7 +1,6 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-use Doctrine\ORM\ORMException;
 use Firebase\JWT\JWT;
 
 class LoginController extends RestController
@@ -22,8 +21,7 @@ class LoginController extends RestController
     /**
      * Login
      *
-     * @throws ORMException
-     * @throws ReflectionException
+     * @throws
      */
 	public function index_post()
 	{
@@ -53,7 +51,6 @@ class LoginController extends RestController
         //Should check captcha if the current login requires it
         $captchaResult = $loginTrace->getCaptchaResult();
         if ($captchaResult !== '') {
-            $passed = false;
             $captcha = array_key_exists('captcha', $body) ? (string)$body['captcha'] : '';
             if ($captcha !== $captchaResult) {
                 $this->fail(ERROR_LOGIN_CAPTCHA_INCORRECT, $loginTrace);
@@ -88,8 +85,7 @@ class LoginController extends RestController
     /**
      * Refresh captcha
      *
-     * @throws ORMException
-     * @throws ReflectionException
+     * @throws
      */
     public function captcha_get()
     {
@@ -116,8 +112,7 @@ class LoginController extends RestController
      *
      * @param string $ip
      * @param LoginTrace|null $loginTrace
-     * @throws ORMException
-     * @throws ReflectionException
+     * @throws
      */
     public function checkIpAddress(string $ip, &$loginTrace): void
     {
@@ -152,7 +147,7 @@ class LoginController extends RestController
      *
      * @param array $error
      * @param LoginTrace $loginTrace
-     * @throws ORMException
+     * @throws
      */
     private function fail(array $error, LoginTrace &$loginTrace)
     {

@@ -16,16 +16,30 @@ class BaseEntity
     private $id;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true, options={"comment":"create time"})
+     * @ORM\Column(name="create_time", type="datetime", nullable=true, options={"comment":"create time"})
      * @var DateTime
      */
-    private $create_time;
+    private $createTime;
 
     /**
-     * @ORM\Column(type="datetime", nullable=true, options={"comment":"update time"})
+     * @ORM\Column(name="update_time", type="datetime", nullable=true, options={"comment":"update time"})
      * @var DateTime
      */
-    private $update_time;
+    private $updateTime;
+
+    /**
+     * @ORM\Column(name="is_deleted", type="boolean", options={"default": false, "comment":"Deleted Flag"})
+     * @var bool
+     */
+    private $isDeleted;
+
+    /**
+     * JsonIgnore
+     * @ORM\Version
+     * @ORM\Column(name="version", type="integer", options={"default": 0, "comment":"Version Number"})
+     * @var int
+     */
+    private $version;
 
     /**
      * @return string
@@ -55,16 +69,16 @@ class BaseEntity
      */
     public function getCreateTime(): DateTime
     {
-        return $this->create_time;
+        return $this->createTime;
     }
 
     /**
-     * @param DateTime $create_time
+     * @param DateTime $createTime
      * @return BaseEntity
      */
-    public function setCreateTime(DateTime $create_time): BaseEntity
+    public function setCreateTime(DateTime $createTime): BaseEntity
     {
-        $this->create_time = $create_time;
+        $this->createTime = $createTime;
         return $this;
     }
 
@@ -73,16 +87,52 @@ class BaseEntity
      */
     public function getUpdateTime(): DateTime
     {
-        return $this->update_time;
+        return $this->updateTime;
     }
 
     /**
-     * @param DateTime $update_time
+     * @param DateTime $updateTime
      * @return BaseEntity
      */
-    public function setUpdateTime(DateTime $update_time): BaseEntity
+    public function setUpdateTime(DateTime $updateTime): BaseEntity
     {
-        $this->update_time = $update_time;
+        $this->updateTime = $updateTime;
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function isDeleted(): bool
+    {
+        return $this->isDeleted;
+    }
+
+    /**
+     * @param bool $isDeleted
+     * @return BaseEntity
+     */
+    public function setIsDeleted(bool $isDeleted): BaseEntity
+    {
+        $this->isDeleted = $isDeleted;
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getVersion(): int
+    {
+        return $this->version;
+    }
+
+    /**
+     * @param int $version
+     * @return BaseEntity
+     */
+    public function setVersion(int $version): BaseEntity
+    {
+        $this->version = $version;
         return $this;
     }
 
