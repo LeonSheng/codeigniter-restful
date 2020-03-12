@@ -37,7 +37,7 @@ php cli-doctrine.php orm:schema-tool:update --dump-sql --force
 
 **RESTful CRUD**
 
-Use [curl](https://curl.haxx.se/) or [Postman](https://www.postman.com/) to do the tests.
+Use [Curl](https://curl.haxx.se/) or [Postman](https://www.postman.com/) to do the tests.
 
 * **POST:** Create a user
 ```

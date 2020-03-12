@@ -39,6 +39,11 @@ class RestController extends CI_Controller
      */
     public function _remap($method)
     {
+        //https check
+        if (config_item('https_only') && !is_https()) {
+            show_json_error(STATUS_TEXT[HTTP_FORBIDDEN], HTTP_FORBIDDEN, false);
+        }
+
         //append http method suffix
         $method = $method . '_' . $this->input->method();
         if (!method_exists($this, $method)) {
