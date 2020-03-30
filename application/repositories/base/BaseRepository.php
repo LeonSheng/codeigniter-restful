@@ -9,14 +9,14 @@ class BaseRepository extends EntityRepository
     protected $_alias = 'o';
 
     /**
-     * Find top one entity by a set of criteria
+     * Find top one entity by a set of criteria (default to use 'eq' search for string field)
      *
      * @param array $criteria
      * @param array|null $orderBy
      * @param bool $likeSearch
      * @return object|null
      */
-    public function findOneBy(array $criteria, array $orderBy = null, bool $likeSearch = true)
+    public function findOneBy(array $criteria, array $orderBy = null, bool $likeSearch = false)
     {
         $resources = $this->findAllBy($criteria, $orderBy, $likeSearch);
         $list = $resources->getList();
@@ -27,7 +27,7 @@ class BaseRepository extends EntityRepository
     }
 
     /**
-     * Find all entities by a set of criteria
+     * Find all entities by a set of criteria (default to use 'like' search for string field)
      *
      * @param array $criteria
      * @param array|null $orderBy
@@ -49,7 +49,7 @@ class BaseRepository extends EntityRepository
     }
 
     /**
-     * Find paged entities by a set of criteria
+     * Find paged entities by a set of criteria (default to use 'like' search for string field)
      *
      * @param array $criteria
      * @param array|null $orderBy

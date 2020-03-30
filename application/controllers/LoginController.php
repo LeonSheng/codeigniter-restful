@@ -40,7 +40,7 @@ class LoginController extends RestController
         if (StringUtils::isBlank($username)) {
             $this->fail(ERROR_LOGIN_U_P_REQUIRED, $loginTrace);
         }
-        $user = $this->userRepository->findOneBy(['username' => $username], null, false);
+        $user = $this->userRepository->findOneBy(['username' => $username]);
         if ($user === null) {
             $this->fail(ERROR_LOGIN_U_P_INCORRECT, $loginTrace);
         }
