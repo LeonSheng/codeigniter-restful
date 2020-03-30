@@ -28,7 +28,7 @@ class BaseEntity
     private $updateTime;
 
     /**
-     * @ORM\Column(name="is_deleted", type="boolean", options={"default": false, "comment":"Deleted Flag"})
+     * @ORM\Column(name="is_deleted", type="boolean", options={"default":false, "comment":"Deleted Flag"})
      * @var bool
      */
     private $isDeleted;
@@ -36,7 +36,7 @@ class BaseEntity
     /**
      * JsonIgnore
      * @ORM\Version
-     * @ORM\Column(name="version", type="integer", options={"default": 0, "comment":"Version Number"})
+     * @ORM\Column(name="version", type="integer", options={"default":0, "comment":"Version Number"})
      * @var int
      */
     private $version;

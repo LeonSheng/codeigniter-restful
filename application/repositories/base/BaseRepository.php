@@ -8,16 +8,15 @@ class BaseRepository extends EntityRepository
 {
     protected $_alias = 'o';
 
-
     /**
      * Find all entities by a set of criteria.
      *
      * @param array $criteria
      * @param array|null $orderBy
      * @param bool $isExact
-     * @return array
+     * @return Resources
      */
-    public function findAllBy($criteria, $orderBy, bool $isExact = false): array
+    public function findAllBy($criteria, $orderBy = null, bool $isExact = false): Resources
     {
         $builder = $this->_em->createQueryBuilder();
         $listBuilder = $builder
@@ -26,9 +25,9 @@ class BaseRepository extends EntityRepository
             ->where('1 = 1');
         $this->appendCriteria($listBuilder, $criteria, $isExact, $orderBy);
         $list = $listBuilder->getQuery()->getResult();
-        return [
-            'list' => ObjectUtils::toArray($list),
-        ];
+        $resources = new Resources();
+        $resources->setList($list);
+        return $resources;
     }
 
     /**
@@ -39,10 +38,10 @@ class BaseRepository extends EntityRepository
      * @param int|null $pageSize
      * @param int|null $pageIndex
      * @param bool $isExact
-     * @return array The serialized data {list: [...], page: {totalElements: x, $pageSize: x, $pageIndex: x}}
+     * @return Resources
      * @throws
      */
-    public function findPagedAllBy($criteria, $pageSize, $pageIndex, $orderBy, bool $isExact = false): array
+    public function findPagedAllBy($criteria, $pageSize = null, $pageIndex = null, $orderBy = null, bool $isExact = false): Resources
     {
         $limit = $pageSize !== null && $pageSize > 0 ? (int)$pageSize : 20;
         $pageIndex = $pageIndex !== null && $pageIndex >= 0 ? (int)$pageIndex : 0;
@@ -64,16 +63,17 @@ class BaseRepository extends EntityRepository
             ->from($this->_entityName, $this->_alias)
             ->where('1 = 1');
         $this->appendCriteria($listBuilder, $criteria, $isExact, $orderBy, $limit, $offset);
-        $list = $listBuilder->getQuery()->getResult();;
-        return [
-            'list' => ObjectUtils::toArray($list),
-            'page' => [
-                'totalElements' => $totalElements,
-                'totalPages' => ceil($totalElements / $limit),
-                'pageSize' => $limit,
-                'pageIndex' => $pageIndex,
-            ]
-        ];
+        $list = $listBuilder->getQuery()->getResult();
+
+        $page = new Page();
+        $page->setTotalElements($totalElements);
+        $page->setTotalPages(ceil($totalElements / $limit));
+        $page->setPageSize($limit);
+        $page->setPageIndex($pageIndex);
+        $resources = new Resources();
+        $resources->setList($list);
+        $resources->setPage($page);
+        return $resources;
     }
 
     /**
@@ -100,7 +100,7 @@ class BaseRepository extends EntityRepository
             $fieldType = $this->_em->getClassMetadata($this->_entityName)->getFieldMapping($key)['type'];
             switch ($fieldType) {
                 case 'string':
-                    if ($isExact) {
+                    if ($isExact || StringUtils::endWith($key, 'Id')) {
                         $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $qb->expr()->literal("$value")));
                     } else {
                         $qb = $qb->andWhere($expr->like("{$this->_alias}.${key}", $qb->expr()->literal("%$value%")));

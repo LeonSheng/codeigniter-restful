@@ -22,4 +22,28 @@ class StringUtils
     {
         return !self::isBlank($str);
     }
+
+    /**
+     * @param $str
+     * @param $search
+     * @return bool
+     */
+    public static function startWith($str, $search)
+    {
+        return strpos($str, $search) === 0;
+    }
+
+    /**
+     * @param $str
+     * @param $search
+     * @return bool
+     */
+    public static function endWith($str, $search)
+    {
+        $length = strlen($search);
+        if($length == 0) {
+            return true;
+        }
+        return (substr($str, -$length) === $search);
+    }
 }

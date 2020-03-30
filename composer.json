@@ -27,6 +27,7 @@
             "application/controllers/base",
             "application/models",
             "application/models/base",
+            "application/models/dto",
             "application/repositories",
             "application/repositories/base"
         ]}

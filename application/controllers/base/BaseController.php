@@ -35,6 +35,28 @@ class BaseController extends RestController
     }
 
     /**
+     * Update one by id
+     *
+     * @param string $id required
+     * @throws
+     */
+    public function one_patch(string $id)
+    {
+        /** @var BaseEntity $entity */
+        $entity = ObjectUtils::fromArray($this->requestBody, $this->className);
+        $entity->setIdNull();
+        $loadedEntity = $this->repository->find($id);
+        if ($loadedEntity === null)
+            show_404();
+        $this->beforeUpdate($loadedEntity, $entity);
+        RepositoryUtils::setUpdate($entity, $loadedEntity);
+        $this->doctrine->em->persist($loadedEntity);
+        $this->doctrine->em->flush();
+        $this->afterUpdate($loadedEntity);
+        $this->response(ObjectUtils::toArray($loadedEntity), HTTP_OK);
+    }
+
+    /**
      * Delete one by id
      *
      * @param string $id required
@@ -90,28 +112,6 @@ class BaseController extends RestController
     }
 
     /**
-     * Update one by id
-     *
-     * @param string $id required
-     * @throws
-     */
-    public function one_patch(string $id)
-    {
-        /** @var BaseEntity $entity */
-        $entity = ObjectUtils::fromArray($this->requestBody, $this->className);
-        $entity->setIdNull();
-        $loadedEntity = $this->repository->find($id);
-        if ($loadedEntity === null)
-            show_404();
-        $this->beforeUpdate($loadedEntity, $entity);
-        RepositoryUtils::setUpdate($entity, $loadedEntity);
-        $this->doctrine->em->persist($loadedEntity);
-        $this->doctrine->em->flush();
-        $this->afterUpdate($loadedEntity);
-        $this->response(ObjectUtils::toArray($loadedEntity), HTTP_OK);
-    }
-
-    /**
      * Find paged all by example entity (that is, criteria in sql)
      *
      * @param int|null $pageSize Page size
@@ -140,7 +140,16 @@ class BaseController extends RestController
         $exampleArray = array_filter($exampleArray, function ($value) {
             return $value !== null;
         });
-        $data = $this->repository->findPagedAllBy($exampleArray, $pageSize, $pageIndex, $orderBy, $isExact);
+        $resources = $this->repository->findPagedAllBy($exampleArray, $pageSize, $pageIndex, $orderBy, $isExact);
+        $data = [
+            'list' => ObjectUtils::toArray($resources->getList()),
+            'page' => [
+                'totalElements' => $resources->getPage()->getTotalElements(),
+                'totalPages' => $resources->getPage()->getTotalPages(),
+                'pageSize' => $resources->getPage()->getPageSize(),
+                'pageIndex' => $resources->getPage()->getPageIndex(),
+            ]
+        ];
         $this->response($data, HTTP_OK);
     }
 
@@ -158,9 +167,9 @@ class BaseController extends RestController
     }
 
     protected function beforeCreate($entity) {}
-    protected function beforeDelete($entity) {}
     protected function beforeUpdate($loadedEntity, $patch) {}
+    protected function beforeDelete($entity) {}
     protected function afterCreate($entity) {}
-    protected function afterDelete($entity) {}
     protected function afterUpdate($loadedEntity) {}
+    protected function afterDelete($entity) {}
 }
