@@ -9,21 +9,39 @@ class BaseRepository extends EntityRepository
     protected $_alias = 'o';
 
     /**
-     * Find all entities by a set of criteria.
+     * Find top one entity by a set of criteria
      *
      * @param array $criteria
      * @param array|null $orderBy
-     * @param bool $isExact
+     * @param bool $likeSearch
+     * @return object|null
+     */
+    public function findOneBy(array $criteria, array $orderBy = null, bool $likeSearch = true)
+    {
+        $resources = $this->findAllBy($criteria, $orderBy, $likeSearch);
+        $list = $resources->getList();
+        if (count($list) > 0) {
+            return $list[0];
+        }
+        return null;
+    }
+
+    /**
+     * Find all entities by a set of criteria
+     *
+     * @param array $criteria
+     * @param array|null $orderBy
+     * @param bool $likeSearch
      * @return Resources
      */
-    public function findAllBy($criteria, $orderBy = null, bool $isExact = false): Resources
+    public function findAllBy(array $criteria, array $orderBy = null, bool $likeSearch = true): Resources
     {
         $builder = $this->_em->createQueryBuilder();
         $listBuilder = $builder
             ->select($this->_alias)
             ->from($this->_entityName, $this->_alias)
             ->where('1 = 1');
-        $this->appendCriteria($listBuilder, $criteria, $isExact, $orderBy);
+        $this->appendCriteria($listBuilder, $criteria, $orderBy, $likeSearch);
         $list = $listBuilder->getQuery()->getResult();
         $resources = new Resources();
         $resources->setList($list);
@@ -31,17 +49,21 @@ class BaseRepository extends EntityRepository
     }
 
     /**
-     * Find paged entities by a set of criteria.
+     * Find paged entities by a set of criteria
      *
      * @param array $criteria
      * @param array|null $orderBy
+     * @param bool $likeSearch
      * @param int|null $pageSize
      * @param int|null $pageIndex
-     * @param bool $isExact
      * @return Resources
      * @throws
      */
-    public function findPagedAllBy($criteria, $pageSize = null, $pageIndex = null, $orderBy = null, bool $isExact = false): Resources
+    public function findPagedAllBy(array $criteria,
+                                   array $orderBy = null,
+                                   bool $likeSearch = true,
+                                   int $pageSize = null,
+                                   int $pageIndex = null): Resources
     {
         $limit = $pageSize !== null && $pageSize > 0 ? (int)$pageSize : 20;
         $pageIndex = $pageIndex !== null && $pageIndex >= 0 ? (int)$pageIndex : 0;
@@ -53,7 +75,7 @@ class BaseRepository extends EntityRepository
             ->select($builder->expr()->count($this->_alias))
             ->from($this->_entityName, $this->_alias)
             ->where('1 = 1');
-        $this->appendCriteria($countBuilder, $criteria, $isExact);
+        $this->appendCriteria($countBuilder, $criteria, null, $likeSearch);
         $totalElements = (int)$countBuilder->getQuery()->getSingleScalarResult();
 
         //pagination
@@ -62,7 +84,7 @@ class BaseRepository extends EntityRepository
             ->select($this->_alias)
             ->from($this->_entityName, $this->_alias)
             ->where('1 = 1');
-        $this->appendCriteria($listBuilder, $criteria, $isExact, $orderBy, $limit, $offset);
+        $this->appendCriteria($listBuilder, $criteria, $orderBy, $likeSearch, $limit, $offset);
         $list = $listBuilder->getQuery()->getResult();
 
         $page = new Page();
@@ -79,18 +101,18 @@ class BaseRepository extends EntityRepository
     /**
      * @param QueryBuilder $qb
      * @param array $criteria
-     * @param bool $isExact
-     * @param null $orderBy
-     * @param null $limit
-     * @param null $offset
+     * @param array|null $orderBy
+     * @param bool $likeSearch
+     * @param int|null $limit
+     * @param int|null $offset
      * @throws
      */
     private function appendCriteria(QueryBuilder &$qb,
                                     array $criteria,
-                                    $isExact = false,
-                                    $orderBy = null,
-                                    $limit = null,
-                                    $offset = null)
+                                    array $orderBy = null,
+                                    bool $likeSearch = true,
+                                    int $limit = null,
+                                    int $offset = null)
     {
         $expr = $this->_em->getExpressionBuilder();
         if (!key_exists('isDeleted', $criteria)) {
@@ -100,10 +122,10 @@ class BaseRepository extends EntityRepository
             $fieldType = $this->_em->getClassMetadata($this->_entityName)->getFieldMapping($key)['type'];
             switch ($fieldType) {
                 case 'string':
-                    if ($isExact || StringUtils::endWith($key, 'Id')) {
-                        $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $qb->expr()->literal("$value")));
-                    } else {
+                    if ($likeSearch && !StringUtils::endWith($key, 'Id')) {
                         $qb = $qb->andWhere($expr->like("{$this->_alias}.${key}", $qb->expr()->literal("%$value%")));
+                    } else {
+                        $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $qb->expr()->literal("$value")));
                     }
                     break;
                 default:

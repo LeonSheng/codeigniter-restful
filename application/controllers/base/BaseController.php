@@ -114,33 +114,21 @@ class BaseController extends RestController
     /**
      * Find paged all by example entity (that is, criteria in sql)
      *
+     * @param string|null $orderBy Usage example: orderBy=id,desc
+     * @param bool $likeSearch eq or like criteria search
      * @param int|null $pageSize Page size
      * @param int|null $pageIndex Page index
-     * @param string|null $sort Used to query database with orderBy field. For example, $sort = 'id,desc'
-     * @param bool $isExact eq or like criteria search
      */
-    public function index_get($pageSize, $pageIndex, $sort, bool $isExact)
+    public function index_get(string $orderBy = null, bool $likeSearch = true, int $pageSize = null, int $pageIndex = null)
     {
         $args = $this->requestParams;
         $exampleEntity = ObjectUtils::fromArray($args, $this->className);
         $exampleArray = ObjectUtils::toArray($exampleEntity);
-        $orderBy = $sort ? explode(',', $sort) : null;
-        if ($orderBy != null && count($orderBy) === 2) {
-            $key = $orderBy[0];
-            $value = strtolower($orderBy[1]);
-            if (array_key_exists($key, $exampleArray) && ($value === 'asc' || $value === 'desc')) {
-                $orderBy = [$key => $value];
-            } else {
-                $orderBy = null;
-            }
-        }
-        else {
-            $orderBy = null;
-        }
-        $exampleArray = array_filter($exampleArray, function ($value) {
+        $orderBy = $this->parseOrderBy($orderBy, $exampleArray);
+        $criteria = array_filter($exampleArray, function ($value) {
             return $value !== null;
         });
-        $resources = $this->repository->findPagedAllBy($exampleArray, $pageSize, $pageIndex, $orderBy, $isExact);
+        $resources = $this->repository->findPagedAllBy($criteria, $orderBy, $likeSearch, $pageSize, $pageIndex);
         $data = [
             'list' => ObjectUtils::toArray($resources->getList()),
             'page' => [
@@ -164,6 +152,28 @@ class BaseController extends RestController
         if ($one === null)
             show_404();
         $this->response(ObjectUtils::toArray($one), HTTP_OK);
+    }
+
+    /**
+     * @param string|null $orderBy
+     * @param array $exampleArray
+     * @return array|null
+     */
+    public function parseOrderBy($orderBy, $exampleArray)
+    {
+        $orderBy = is_string($orderBy) ? explode(',', $orderBy) : null;
+        if ($orderBy !== null && is_array($orderBy) && count($orderBy) === 2) {
+            $key = $orderBy[0];
+            $value = strtolower($orderBy[1]);
+            if (array_key_exists($key, $exampleArray) && ($value === 'asc' || $value === 'desc')) {
+                $orderBy = [$key => $value];
+            } else {
+                $orderBy = null;
+            }
+        } else {
+            $orderBy = null;
+        }
+        return $orderBy;
     }
 
     protected function beforeCreate($entity) {}

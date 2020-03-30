@@ -65,41 +65,57 @@ class RestController extends CI_Controller
             //Convert value if parameter type is declared
             if ($parameterType !== null) {
                 $parameterTypeName = $parameterType->getName();
+
+                //primitive type
                 if ($parameterType->isBuiltin()) {
-                    //primitive type
-                    switch ($parameterTypeName) {
-                        case 'string':
-                            $value = (string)$value;
-                            break;
-                        case 'int':
-                            $value = (int)$value;
-                            break;
-                        case 'float':
-                            $value = (float)$value;
-                            break;
-                        case 'bool':
-                            $value = (bool)$value;
-                            break;
-                        case 'object':
-                        case 'array':
-                            if ($value === null && is_array($this->requestBody)) {
-                                $value = $this->requestBody;
-                            }
-                            $value = (array)$value;
-                            break;
-                        default:
-                            break;
+                    if ($value == null && $reflectionParameter->isOptional()) {
+                        $value = $reflectionParameter->getDefaultValue();
+                    }
+                    else {
+                        switch ($parameterTypeName) {
+                            case 'string':
+                                $value = (string)$value;
+                                break;
+                            case 'int':
+                                $value = (int)$value;
+                                break;
+                            case 'float':
+                                $value = (float)$value;
+                                break;
+                            case 'bool':
+                                if (is_string($value)) {
+                                    if (strtolower($value) === 'true') {
+                                        $value = true;
+                                    } elseif (strtolower($value) === 'false') {
+                                        $value = false;
+                                    }
+                                }
+                                $value = (bool)$value;
+                                break;
+                            case 'object':
+                            case 'array':
+                                if ($value === null && is_array($this->requestBody)) {
+                                    $value = $this->requestBody;
+                                }
+                                $value = (array)$value;
+                                break;
+                            default:
+                                break;
+                        }
                     }
                 }
+                //class type
                 else {
                     $reflectionTypeClass = new ReflectionClass($parameterTypeName);
                     if ($reflectionTypeClass->isInternal()) {
                         //internal class type. add more handling if need
                         switch ($parameterTypeName) {
                             case 'DateTime':
-                                $datetime = new DateTime();
-                                $datetime->setTimestamp($value);
-                                $value = $datetime;
+                                if ($value !== null && is_int($value)) {
+                                    $datetime = new DateTime();
+                                    $datetime->setTimestamp($value);
+                                    $value = $datetime;
+                                }
                                 break;
                             default:
                                 break;
@@ -125,6 +141,9 @@ class RestController extends CI_Controller
             }
             // No parameter type declared, just assign value, it's safe.
             else {
+                if ($value == null && $reflectionParameter->isOptional()) {
+                    $value = $reflectionParameter->getDefaultValue();
+                }
                 array_push($params, $value);
             }
         }
