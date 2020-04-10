@@ -11,25 +11,25 @@ class BaseEntity
     /**
      * @ORM\Id()
      * @ORM\Column(type="string", length=24 , options={"fixed":true, "comment":"id"})
-     * @var string
+     * @var string|null
      */
     private $id;
 
     /**
      * @ORM\Column(name="create_time", type="datetime", nullable=true, options={"comment":"create time"})
-     * @var DateTime
+     * @var DateTime|null
      */
     private $createTime;
 
     /**
      * @ORM\Column(name="update_time", type="datetime", nullable=true, options={"comment":"update time"})
-     * @var DateTime
+     * @var DateTime|null
      */
     private $updateTime;
 
     /**
      * @ORM\Column(name="is_deleted", type="boolean", options={"default":false, "comment":"Deleted Flag"})
-     * @var bool
+     * @var bool|null
      */
     private $isDeleted;
 
@@ -37,100 +37,95 @@ class BaseEntity
      * JsonIgnore
      * @ORM\Version
      * @ORM\Column(name="version", type="integer", options={"default":0, "comment":"Version Number"})
-     * @var int
+     * @var int|null
      */
     private $version;
 
     /**
-     * @return string
+     * @return string|null
      */
-    public function getId(): string
+    public function getId(): ?string
     {
         return $this->id;
     }
 
     /**
-     * @param string $id
+     * @param string|null $id
      * @return BaseEntity
      */
-    public function setId(string $id): BaseEntity
+    public function setId(?string $id): BaseEntity
     {
         $this->id = $id;
         return $this;
     }
 
-    public function setIdNull()
-    {
-        $this->id = null;
-    }
-
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
-    public function getCreateTime(): DateTime
+    public function getCreateTime(): ?DateTime
     {
         return $this->createTime;
     }
 
     /**
-     * @param DateTime $createTime
+     * @param DateTime|null $createTime
      * @return BaseEntity
      */
-    public function setCreateTime(DateTime $createTime): BaseEntity
+    public function setCreateTime(?DateTime $createTime): BaseEntity
     {
         $this->createTime = $createTime;
         return $this;
     }
 
     /**
-     * @return DateTime
+     * @return DateTime|null
      */
-    public function getUpdateTime(): DateTime
+    public function getUpdateTime(): ?DateTime
     {
         return $this->updateTime;
     }
 
     /**
-     * @param DateTime $updateTime
+     * @param DateTime|null $updateTime
      * @return BaseEntity
      */
-    public function setUpdateTime(DateTime $updateTime): BaseEntity
+    public function setUpdateTime(?DateTime $updateTime): BaseEntity
     {
         $this->updateTime = $updateTime;
         return $this;
     }
 
     /**
-     * @return bool
+     * @return bool|null
      */
-    public function isDeleted(): bool
+    public function getIsDeleted(): ?bool
     {
         return $this->isDeleted;
     }
 
     /**
-     * @param bool $isDeleted
+     * @param bool|null $isDeleted
      * @return BaseEntity
      */
-    public function setIsDeleted(bool $isDeleted): BaseEntity
+    public function setIsDeleted(?bool $isDeleted): BaseEntity
     {
         $this->isDeleted = $isDeleted;
         return $this;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getVersion(): int
+    public function getVersion(): ?int
     {
         return $this->version;
     }
 
     /**
-     * @param int $version
+     * @param int|null $version
      * @return BaseEntity
      */
-    public function setVersion(int $version): BaseEntity
+    public function setVersion(?int $version): BaseEntity
     {
         $this->version = $version;
         return $this;

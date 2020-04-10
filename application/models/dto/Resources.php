@@ -6,30 +6,30 @@ class Resources
     /**
      * Entity list content
      *
-     * @var array
+     * @var array|null
      */
     private $list;
 
     /**
      * Page information
      *
-     * @var Page | null
+     * @var Page|null
      */
     private $page;
 
     /**
-     * @return array
+     * @return array|null
      */
-    public function getList(): array
+    public function getList(): ?array
     {
         return $this->list;
     }
 
     /**
-     * @param array $list
+     * @param array|null $list
      * @return Resources
      */
-    public function setList(array $list): Resources
+    public function setList(?array $list): Resources
     {
         $this->list = $list;
         return $this;

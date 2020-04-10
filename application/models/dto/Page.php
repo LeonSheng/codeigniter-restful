@@ -6,98 +6,98 @@ class Page
     /**
      * Total elements count
      *
-     * @var int
+     * @var int|null
      */
     private $totalElements;
 
     /**
      * Total pages count
      *
-     * @var int
+     * @var int|null
      */
     private $totalPages;
 
     /**
      * Page size
      *
-     * @var int
+     * @var int|null
      */
     private $pageSize;
 
     /**
      * Current page index
      *
-     * @var int
+     * @var int|null
      */
     private $pageIndex;
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getTotalElements(): int
+    public function getTotalElements(): ?int
     {
         return $this->totalElements;
     }
 
     /**
-     * @param int $totalElements
+     * @param int|null $totalElements
      * @return Page
      */
-    public function setTotalElements(int $totalElements): Page
+    public function setTotalElements(?int $totalElements): Page
     {
         $this->totalElements = $totalElements;
         return $this;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getTotalPages(): int
+    public function getTotalPages(): ?int
     {
         return $this->totalPages;
     }
 
     /**
-     * @param int $totalPages
+     * @param int|null $totalPages
      * @return Page
      */
-    public function setTotalPages(int $totalPages): Page
+    public function setTotalPages(?int $totalPages): Page
     {
         $this->totalPages = $totalPages;
         return $this;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getPageSize(): int
+    public function getPageSize(): ?int
     {
         return $this->pageSize;
     }
 
     /**
-     * @param int $pageSize
+     * @param int|null $pageSize
      * @return Page
      */
-    public function setPageSize(int $pageSize): Page
+    public function setPageSize(?int $pageSize): Page
     {
         $this->pageSize = $pageSize;
         return $this;
     }
 
     /**
-     * @return int
+     * @return int|null
      */
-    public function getPageIndex(): int
+    public function getPageIndex(): ?int
     {
         return $this->pageIndex;
     }
 
     /**
-     * @param int $pageIndex
+     * @param int|null $pageIndex
      * @return Page
      */
-    public function setPageIndex(int $pageIndex): Page
+    public function setPageIndex(?int $pageIndex): Page
     {
         $this->pageIndex = $pageIndex;
         return $this;

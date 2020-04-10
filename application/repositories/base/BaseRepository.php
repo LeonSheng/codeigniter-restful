@@ -116,20 +116,20 @@ class BaseRepository extends EntityRepository
     {
         $expr = $this->_em->getExpressionBuilder();
         if (!key_exists('isDeleted', $criteria)) {
-            $qb = $qb->andWhere($expr->eq("{$this->_alias}.isDeleted", 'false'));
+            $qb = $qb->andWhere($expr->eq("$this->_alias.isDeleted", 'false'));
         }
         foreach ($criteria as $key => $value) {
             $fieldType = $this->_em->getClassMetadata($this->_entityName)->getFieldMapping($key)['type'];
             switch ($fieldType) {
                 case 'string':
                     if ($likeSearch && !StringUtils::endWith($key, 'Id')) {
-                        $qb = $qb->andWhere($expr->like("{$this->_alias}.${key}", $qb->expr()->literal("%$value%")));
+                        $qb = $qb->andWhere($expr->like("$this->_alias.${key}", $qb->expr()->literal("%$value%")));
                     } else {
-                        $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $qb->expr()->literal("$value")));
+                        $qb = $qb->andWhere($expr->eq("$this->_alias.${key}", $qb->expr()->literal("$value")));
                     }
                     break;
                 default:
-                    $qb = $qb->andWhere($expr->eq("{$this->_alias}.${key}", $value));
+                    $qb = $qb->andWhere($expr->eq("$this->_alias.${key}", $value));
                     break;
             }
         }

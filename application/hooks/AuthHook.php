@@ -1,4 +1,4 @@
-<?php
+<?php /** @noinspection PhpIncludeInspection */
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 require_once APPPATH . 'config/errors.php';

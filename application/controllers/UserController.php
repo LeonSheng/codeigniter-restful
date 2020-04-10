@@ -11,7 +11,7 @@ class UserController extends BaseController
     /**
      * @param User $entity
      */
-    protected function beforeCreate($entity)
+    protected function beforeCreate(&$entity)
     {
         parent::beforeCreate($entity);
         if (StringUtils::isBlank($entity->getUsername())) {

@@ -120,8 +120,8 @@ class LoginController extends RestController
             $loginTrace = new LoginTrace();
             RepositoryUtils::initializeForCreate($loginTrace);
             $loginTrace->setIp($ip);
-            $loginTrace->setLockTimeNull();
-            $loginTrace->setLastLoginTimeNull();
+            $loginTrace->setLockTime(null);
+            $loginTrace->setLastLoginTime(null);
             $this->doctrine->em->persist($loginTrace);
         }
         if ($loginTrace->getIsLocked()) {

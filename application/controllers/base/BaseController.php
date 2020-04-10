@@ -25,6 +25,7 @@ class BaseController extends RestController
      */
     public function index_post()
     {
+        /** @var BaseEntity $entity */
         $entity = ObjectUtils::fromArray($this->requestBody, $this->className);
         RepositoryUtils::initializeForCreate($entity);
         $this->beforeCreate($entity);
@@ -44,10 +45,11 @@ class BaseController extends RestController
     {
         /** @var BaseEntity $entity */
         $entity = ObjectUtils::fromArray($this->requestBody, $this->className);
-        $entity->setIdNull();
+        $entity->setId(null);
         $loadedEntity = $this->repository->find($id);
         if ($loadedEntity === null)
             show_404();
+        /** @var BaseEntity $loadedEntity */
         $this->beforeUpdate($loadedEntity, $entity);
         RepositoryUtils::setUpdate($entity, $loadedEntity);
         $this->doctrine->em->persist($loadedEntity);
@@ -65,18 +67,7 @@ class BaseController extends RestController
      */
     public function one_delete(string $id, bool $physical)
     {
-        /** @var BaseEntity $entity */
-        $entity = $this->repository->find($id);
-        if ($entity === null)
-            show_404();
-        $this->beforeDelete($entity);
-        if ($physical) {
-            $this->doctrine->em->remove($entity);
-        } else {
-            $entity->setIsDeleted(true);
-        }
-        $this->doctrine->em->flush();
-        $this->afterDelete($entity);
+        $this->deleteById($id, $physical);
         $this->response(null, HTTP_NO_CONTENT);
     }
 
@@ -92,16 +83,7 @@ class BaseController extends RestController
         if (is_array($ids) && count($ids) > 0) {
             $this->doctrine->em->beginTransaction();
             foreach ($ids as $id) {
-                $entity = $this->repository->find($id);
-                if ($entity === null)
-                    show_404();
-                $this->beforeDelete($entity);
-                if ($physical) {
-                    $this->doctrine->em->remove($entity);
-                } else {
-                    $entity->setIsDeleted(true);
-                }
-                $this->afterDelete($entity);
+                $this->deleteById($id, $physical);
             }
             $this->doctrine->em->flush();
             $this->doctrine->em->commit();
@@ -109,6 +91,26 @@ class BaseController extends RestController
             show_json_error(STATUS_TEXT[HTTP_BAD_REQUEST], HTTP_BAD_REQUEST);
         }
         $this->response(null, HTTP_NO_CONTENT);
+    }
+
+    /**
+     * @param string $id
+     * @param bool $physical
+     * @throws
+     */
+    private function deleteById(string $id, bool $physical)
+    {
+        /** @var BaseEntity $entity */
+        $entity = $this->repository->find($id);
+        if ($entity === null)
+            show_404();
+        $this->beforeDelete($entity);
+        if ($physical) {
+            $this->doctrine->em->remove($entity);
+        } else {
+            $entity->setIsDeleted(true);
+        }
+        $this->afterDelete($entity);
     }
 
     /**
@@ -176,10 +178,10 @@ class BaseController extends RestController
         return $orderBy;
     }
 
-    protected function beforeCreate($entity) {}
-    protected function beforeUpdate($loadedEntity, $patch) {}
-    protected function beforeDelete($entity) {}
-    protected function afterCreate($entity) {}
-    protected function afterUpdate($loadedEntity) {}
-    protected function afterDelete($entity) {}
+    protected function beforeCreate(&$entity) {}
+    protected function beforeUpdate(&$loadedEntity, &$patch) {}
+    protected function beforeDelete(&$entity) {}
+    protected function afterCreate(&$entity) {}
+    protected function afterUpdate(&$loadedEntity) {}
+    protected function afterDelete(&$entity) {}
 }

@@ -77,9 +77,9 @@ $db['default'] = IS_DEV_MODE ?
     array(
         'dsn'	=> '',
         'hostname' => 'localhost',
-        'username' => '',
-        'password' => '',
-        'database' => '',
+        'username' => 'root',
+        'password' => 'Welcome1',
+        'database' => 'test',
         'dbdriver' => 'mysqli',
         'dbprefix' => '',
         'pconnect' => FALSE,
