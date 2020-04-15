@@ -90,6 +90,10 @@ class RepositoryUtils
                     case 'int':
                         $method->invoke($modelObject, 0);
                         break;
+                    case 'float':
+                    case 'double':
+                        $method->invoke($modelObject, floatval(0));
+                        break;
                     case 'bool':
                         $method->invoke($modelObject, false);
                         break;

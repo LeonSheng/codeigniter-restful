@@ -7,9 +7,11 @@ class ObjectId
 
     private static function init()
     {
-        self::$MACHINE_ID = intval(self::rand() * 0xFFFFFF);
-        self::$index = intval(self::rand() * 0xFFFFFF);
-        self::$pid = rand(2000, 29999) % 0xFFFF;
+        if (self::$MACHINE_ID === null) {
+            self::$MACHINE_ID = intval(self::rand() * 0xFFFFFF);
+            self::$index = intval(self::rand() * 0xFFFFFF);
+            self::$pid = rand(2000, 29999) % 0xFFFF;
+        }
     }
 
     private static function rand()

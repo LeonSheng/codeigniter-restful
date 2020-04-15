@@ -39,7 +39,7 @@ class BaseRepository extends EntityRepository
         $builder = $this->_em->createQueryBuilder();
         $listBuilder = $builder
             ->select($this->_alias)
-            ->from($this->_entityName, $this->_alias)
+            ->from("\\$this->_entityName", $this->_alias)
             ->where('1 = 1');
         $this->appendCriteria($listBuilder, $criteria, $orderBy, $likeSearch);
         $list = $listBuilder->getQuery()->getResult();
@@ -73,7 +73,7 @@ class BaseRepository extends EntityRepository
         $builder = $this->_em->createQueryBuilder();
         $countBuilder = $builder
             ->select($builder->expr()->count($this->_alias))
-            ->from($this->_entityName, $this->_alias)
+            ->from("\\$this->_entityName", $this->_alias)
             ->where('1 = 1');
         $this->appendCriteria($countBuilder, $criteria, null, $likeSearch);
         $totalElements = (int)$countBuilder->getQuery()->getSingleScalarResult();
@@ -82,7 +82,7 @@ class BaseRepository extends EntityRepository
         $builder = $this->_em->createQueryBuilder();
         $listBuilder = $builder
             ->select($this->_alias)
-            ->from($this->_entityName, $this->_alias)
+            ->from("\\$this->_entityName", $this->_alias)
             ->where('1 = 1');
         $this->appendCriteria($listBuilder, $criteria, $orderBy, $likeSearch, $limit, $offset);
         $list = $listBuilder->getQuery()->getResult();
