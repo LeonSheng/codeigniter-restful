@@ -85,7 +85,6 @@ class BaseController extends RestController
             foreach ($ids as $id) {
                 $this->deleteById($id, $physical);
             }
-            $this->doctrine->em->flush();
             $this->doctrine->em->commit();
         } else {
             show_json_error(STATUS_TEXT[HTTP_BAD_REQUEST], HTTP_BAD_REQUEST);
@@ -110,6 +109,7 @@ class BaseController extends RestController
         } else {
             $entity->setIsDeleted(true);
         }
+        $this->doctrine->em->flush();
         $this->afterDelete($entity);
     }
 

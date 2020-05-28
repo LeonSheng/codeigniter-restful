@@ -50,6 +50,7 @@ $indexPath = ROOTPATH . 'index.php';
 $htaccessPath = ROOTPATH . '.htaccess';
 
 //create or update .htaccess file according to env
+$matchesBeforeReplacement = [];
 if (!file_exists($htaccessPath)) {
     touch($htaccessPath);
     $file = fopen($htaccessPath, 'w');
@@ -68,6 +69,7 @@ if (!file_exists($htaccessPath)) {
     fclose($file);
 } else {
     $content = file_get_contents($htaccessPath);
+    preg_match('/SetEnv CI_ENV \S*/', $content, $matchesBeforeReplacement);
     $content = preg_replace('/SetEnv CI_ENV \S*/', "SetEnv CI_ENV $env", $content);
     file_put_contents($htaccessPath, $content);
 }
@@ -82,7 +84,11 @@ if ($zip->open($zipPath, ZipArchive::CREATE) === true) {
     $zip->addFile($htaccessPath, '.htaccess');
     $zip->close();
     echo "$env dist.zip created!";
+    if (count($matchesBeforeReplacement) > 0) {
+        $content = file_get_contents($htaccessPath);
+        $content = preg_replace('/SetEnv CI_ENV \S*/', $matchesBeforeReplacement[0], $content);
+        file_put_contents($htaccessPath, $content);
+    }
 } else {
     echo 'failed to create zip file';
 }
-
